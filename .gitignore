@@ -1,0 +1,5 @@
+node_modules
+.env
+pinata-credentials.json
+dev-wallet.json
+deployed-token.json

@@ -1,10 +1,19 @@
-import { Raydium, DEVNET_PROGRAM_ID, TxVersion, CREATE_CPMM_POOL_FEE_ACC } from "@raydium-io/raydium-sdk-v2";
+import { Raydium, TxVersion } from "@raydium-io/raydium-sdk-v2";
 import { PublicKey } from "@solana/web3.js";
 import BN from "bn.js";
 import { getConnection } from "../utils/get-rpc";
 import { getKeypair } from "../utils/get-keypair";
+import dotenv from "dotenv";
 
-async function createCpmmPool() {
+dotenv.config();
+
+const BASE_MINT = process.env.BASE_MINT ?? "7cfwWFgwDESjWLCQxJVJd9PZ9myVJ5nZx5Q9K7KvecWe";
+const QUOTE_MINT = process.env.QUOTE_MINT ?? "8wxVQjQ994K31odPWBgDqbXJv581fMiFH9G4VLGQ6cnY";
+
+const BASE_AMOUNT = Number(process.env.BASE_AMOUNT ?? 200_000);
+const QUOTE_AMOUNT = Number(process.env.QUOTE_AMOUNT ?? 100);
+
+async function createCpmmPool(baseMint: string, quoteMint: string, baseAmount: number, quoteAmount: number) {
     const connection = getConnection("devnet");
     const owner = getKeypair();
 
@@ -13,15 +22,12 @@ async function createCpmmPool() {
         owner,
         connection,
         cluster: "devnet",
-        disableFeatureCheck: true,
+        // disableFeatureCheck: true,
     });
 
     // 2. Define your Devnet test token mint addresses
-    const tokenAMintStr = "7cfwWFgwDESjWLCQxJVJd9PZ9myVJ5nZx5Q9K7KvecWe"; // AAPl-t
-    const tokenBMintStr = "8wxVQjQ994K31odPWBgDqbXJv581fMiFH9G4VLGQ6cnY"; // USDC-t
-
-    const mintA = await raydium.token.getTokenInfo(tokenAMintStr); //
-    const mintB = await raydium.token.getTokenInfo(tokenBMintStr); //
+    const mintA = await raydium.token.getTokenInfo(baseMint);
+    const mintB = await raydium.token.getTokenInfo(quoteMint);
 
     // 3. Fallback configuration if the Raydium API is offline
     console.log("Building CPMM pool configuration and deposit inputs...");
@@ -47,8 +53,8 @@ async function createCpmmPool() {
         poolFeeAccount: DEVNET_CPMM_FEE_RECEIVER,     // Updated Devnet Fee Receiver
         mintA,
         mintB,
-        mintAAmount: new BN(200_000 * 10 ** mintA.decimals),
-        mintBAmount: new BN(100 * 10 ** mintB.decimals),
+        mintAAmount: new BN(baseAmount * 10 ** mintA.decimals),
+        mintBAmount: new BN(quoteAmount * 10 ** mintB.decimals),
         startTime: new BN(0),
         feeConfig: {
             tradeFeeRate: targetFeeConfig.feeRate,
@@ -75,4 +81,4 @@ async function createCpmmPool() {
     console.log(`Tx:       https://solscan.io/tx/${txId}`);
 }
 
-createCpmmPool().catch(console.error);
+createCpmmPool(BASE_MINT, QUOTE_MINT, BASE_AMOUNT, QUOTE_AMOUNT).catch(console.error);

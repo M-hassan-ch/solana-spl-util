@@ -4,7 +4,8 @@ export const DECIMALS = 6;
 export const RPC_URL = "https://api.devnet.solana.com";
 
 export const TOKEN_DETAILS: TokenDetails[] = [
-    { name: 'Sample tStock', symbol: 'SMPL-t' },
+    { name: 'USDC-T Coin', symbol: 'USDC-T' },
+    // { name: 'Sample tStock', symbol: 'SMPL-t' },
     // { name: 'Apple tStock', symbol: 'AAPL-t' },
     // { name: 'SPDR S&P 500 ETF tStock', symbol: 'SPY-t' },
     // { name: 'Ford Motor Company tStock', symbol: 'F-t' },
